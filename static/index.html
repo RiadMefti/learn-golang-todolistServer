@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>My Todo App</title>
+</head>
+<body>
+    <div id="container">
+        <h1>Learn Go server Todo-app</h1>
+        <div id="username-form-container">
+            <form id="username-form">
+                <label for="username">Enter your username:</label>
+                <input type="text" id="username" name="username" required>
+                <button type="button" onclick="submitUsername()">Submit</button>
+            </form>
+        </div>
+        <div id="todos-container" style="display: none;">
+            <h2>Todos for <span id="user"></span></h2>
+            <ul id="todos-list"></ul>
+            <form id="add-todo-form">
+                <input type="text" id="new-todo-title" placeholder="New todo" required>
+                <button type="button" onclick="addTodo()">Add Todo</button>
+            </form>
+        </div>
+        <div id="message"></div>
+    </div>
+    <script src="/js/scripts.js"></script>
+</body>
+</html>

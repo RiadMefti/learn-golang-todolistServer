@@ -2,8 +2,8 @@ package server
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"todo/internal/models"
 
@@ -14,8 +14,15 @@ import (
 func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-
-	r.Get("/", s.HelloWorldHandler)
+	r.Use(middleware.Recoverer)
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			http.ServeFile(w, r, filepath.Join("static", "index.html"))
+			return
+		}
+		fs := http.StripPrefix("/", http.FileServer(http.Dir("static")))
+		fs.ServeHTTP(w, r)
+	})
 
 	r.Get("/health", s.healthHandler)
 
@@ -27,18 +34,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Put("/todo", s.modifyTodo)
 	r.Delete("/todo", s.deleteTodo)
 	return r
-}
-
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		log.Fatalf("error handling JSON marshal. Err: %v", err)
-	}
-
-	_, _ = w.Write(jsonResp)
 }
 
 func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
