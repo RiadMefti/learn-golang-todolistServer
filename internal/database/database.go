@@ -17,6 +17,8 @@ import (
 type Service interface {
 	Health() map[string]string
 	CreateUserLog(username string, logMessage string) models.Message
+	GetUserTodos(username string) ([]models.Todo, error)
+	PostTodo(username string, title string) ([]models.Todo, error)
 }
 
 type service struct {
@@ -79,6 +81,44 @@ func (s *service) CreateUserLog(username string, logMessage string) models.Messa
 	return models.Message{
 		Text: "Success Log created",
 	}
+}
+
+func (s *service) GetUserTodos(username string) ([]models.Todo, error) {
+
+	var todos []models.Todo
+	filter := bson.M{"username": username}
+
+	collection := s.db.Database(s.name).Collection("todos")
+
+	dbTodos, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, err
+	}
+	err = dbTodos.All(context.Background(), &todos)
+	if err != nil {
+		return nil, err
+	}
+	return todos, nil
+
+}
+
+func (s *service) PostTodo(username string, title string) ([]models.Todo, error) {
+	var todo = models.Todo{
+		Username:   username,
+		Title:      title,
+		IsDone:     false,
+		CreatedAt:  time.Now(),
+		ModifiedAt: time.Now(),
+	}
+	collection := s.db.Database(s.name).Collection("todos")
+	_, err := collection.InsertOne(context.Background(), todo)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+
+	}
+	return s.GetUserTodos(username)
+
 }
 
 func createTodoCollectionIfDoesntExist(db *mongo.Client, dbName string) {

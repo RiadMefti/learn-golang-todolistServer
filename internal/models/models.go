@@ -11,8 +11,23 @@ type LogRequest struct {
 	LogMessage string `json:"logMessage"`
 }
 
+type TodoRequest struct {
+	Username string `json:"username"`
+	Title    string `json:"title"`
+	IsDone   bool   `json:"isDone"`
+}
+
+
 type UserLog struct {
-    Username   string    `json:"username"`
-    LogMessage string    `json:"logMessage"`
-    CreatedAt  time.Time `json:"createdAt"`
+	Username   string    `json:"username"`
+	LogMessage string    `json:"logMessage"`
+	CreatedAt  time.Time `json:"createdAt"`
+}
+
+type Todo struct {
+	Username   string    `json:"username"`
+	Title      string    `json:"title"`
+	IsDone     bool      `json:"isDone"`
+	CreatedAt  time.Time `json:"createdAt"`
+	ModifiedAt time.Time `json:"modifiedAt"`
 }
