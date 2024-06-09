@@ -12,11 +12,6 @@ build:
 run:
 	@go run cmd/api/main.go
 
-# Test the application
-test:
-	@echo "Testing..."
-	@go test ./tests -v
-
 # Clean the binary
 clean:
 	@echo "Cleaning..."
