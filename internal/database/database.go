@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -19,6 +20,8 @@ type Service interface {
 	CreateUserLog(username string, logMessage string) models.Message
 	GetUserTodos(username string) ([]models.Todo, error)
 	PostTodo(username string, title string) ([]models.Todo, error)
+	PutTodo(id string, username string, isDone bool) ([]models.Todo, error) 
+	DeleteTodo(id string, username string) ([]models.Todo, error)
 }
 
 type service struct {
@@ -120,7 +123,41 @@ func (s *service) PostTodo(username string, title string) ([]models.Todo, error)
 	return s.GetUserTodos(username)
 
 }
+func (s *service) PutTodo(id string, username string, isDone bool) ([]models.Todo, error) {
+	// Convert the id string to an ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
 
+	filter := bson.M{"_id": objectID}
+	update := bson.M{"$set": bson.M{"isDone": isDone}}
+	collection := s.db.Database(s.name).Collection("todos")
+
+	_, err = collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.GetUserTodos(username)
+}
+func (s *service) DeleteTodo(id string, username string) ([]models.Todo, error) {
+	// Convert the id string to an ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.M{"_id": objectID}
+	collection := s.db.Database(s.name).Collection("todos")
+
+	_, err = collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.GetUserTodos(username)
+}
 func createTodoCollectionIfDoesntExist(db *mongo.Client, dbName string) {
 	databases, err := db.ListDatabaseNames(context.Background(), bson.M{})
 
