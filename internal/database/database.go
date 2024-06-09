@@ -20,7 +20,7 @@ type Service interface {
 	CreateUserLog(username string, logMessage string) models.Message
 	GetUserTodos(username string) ([]models.Todo, error)
 	PostTodo(username string, title string) ([]models.Todo, error)
-	PutTodo(id string, username string, isDone bool) ([]models.Todo, error) 
+	PutTodo(id string, username string, isDone bool) ([]models.Todo, error)
 	DeleteTodo(id string, username string) ([]models.Todo, error)
 }
 
@@ -131,7 +131,7 @@ func (s *service) PutTodo(id string, username string, isDone bool) ([]models.Tod
 	}
 
 	filter := bson.M{"_id": objectID}
-	update := bson.M{"$set": bson.M{"isDone": isDone}}
+	update := bson.M{"$set": bson.M{"isDone": isDone, "modifiedAt": time.Now()}}
 	collection := s.db.Database(s.name).Collection("todos")
 
 	_, err = collection.UpdateOne(context.Background(), filter, update)
